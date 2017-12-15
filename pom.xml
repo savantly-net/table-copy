@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>net.savantly.data</groupId>
+	<artifactId>table-copy</artifactId>
+	<version>0.0.1</version>
+	<name>table-copy</name>
+	<scm>
+		<url>https://github.com/savantly-net/table-copy</url>
+		<connection>https://github.com/savantly-net/table-copy.git</connection>
+		<tag>HEAD</tag>
+	</scm>
+	<issueManagement>
+		<url>https://github.com/savantly-net/table-copy/issues</url>
+		<system>GitHub</system>
+	</issueManagement>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
+	</parent>
+	<developers>
+		<developer>
+			<name>Jeremy Branham</name>
+			<email>jeremy@savantly.net</email>
+			<url>https://www.linkedin.com/in/jeremybranham</url>
+			<organization>Savantly.net</organization>
+			<organizationUrl>http://Savantly.net</organizationUrl>
+			<timezone>-6</timezone>
+		</developer>
+	</developers>
+	<licenses>
+		<license>
+			<name>Apache License Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
+		</license>
+	</licenses>
+	<inceptionYear>2017</inceptionYear>
+	<properties>
+		<exec.test.skip>false</exec.test.skip>
+		<npm.build.goal>build-snapshot</npm.build.goal>
+	</properties>
+	<profiles>
+		<profile>
+			<id>release</id>
+			<properties>
+				<npm.build.goal>build-noprogress</npm.build.goal>
+			</properties>
+		</profile>
+		<profile>
+			<id>Windows</id>
+			<activation>
+				<os>
+					<family>Windows</family>
+				</os>
+			</activation>
+			<properties>
+				<!-- For some reason, on windows, it hangs when launching Chrome from 
+					the karma tests [only when running from mvn] you can still run 'npm test' 
+					from the cli -->
+				<exec.test.skip>true</exec.test.skip>
+			</properties>
+		</profile>
+	</profiles>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+
+		<!-- Test -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.hsqldb/hsqldb -->
+		<dependency>
+			<groupId>org.hsqldb</groupId>
+			<artifactId>hsqldb</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>npm configuration list (validate)</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>validate</phase>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>config</argument>
+								<argument>list</argument>
+								<argument>-l</argument>
+							</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm install (takes a while)</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>generate-sources</phase>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>install</argument>
+							</arguments>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm test</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>test</phase>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>run</argument>
+								<argument>ci-test</argument>
+							</arguments>
+							<skip>${exec.test.skip}</skip>
+						</configuration>
+					</execution>
+					<execution>
+						<id>npm build</id>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<phase>prepare-package</phase>
+						<configuration>
+							<executable>npm</executable>
+							<arguments>
+								<argument>run</argument>
+								<argument>build</argument>
+							</arguments>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.0.2</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${basedir}/target/classes/META-INF</outputDirectory>
+							<resources>
+								<resource>
+									<directory>${basedir}/dist</directory>
+									<targetPath>./resources/static/</targetPath>
+								</resource>
+								<resource>
+									<directory>${basedir}/src/public</directory>
+									<targetPath>./resources/static/</targetPath>
+								</resource>
+								<resource>
+									<directory>${basedir}/dist</directory>
+									<include>index.html</include>
+									<targetPath>./templates/</targetPath>
+								</resource>
+							</resources>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>
