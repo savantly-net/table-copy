@@ -2,6 +2,9 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.4.2. and Spring Boot version 1.5.9.RELEASE  
 
+* Important  
+Only the HSQL driver is included. You must either add your DB driver as a dependency and build the project from source, OR add your DB driver to the class path.  
+
 ## Running the app  
 After building the app or downloading a prebuilt version, add an `application.properties` file to the same folder as the built jar file.  
 Customize the application.properties to use your DB locations.  
