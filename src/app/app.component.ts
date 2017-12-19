@@ -1,17 +1,31 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material';
 
 export class ColumnMapping {
   sourceColumnName: string;
-  targetColumnName: string;
+  targetVariableName: string;
   sourceColumnType: string;
 }
 
 export class TransferOptions {
-    insertStatement: string;
-    selectStatement: string;
-    mappings: ColumnMapping[] = [];
-  }
+  insertStatement: string;
+  selectStatement: string;
+  mappings: ColumnMapping[] = [];
+}
+
+export class Task {
+  id: number;
+  done: boolean;
+  cancelled: boolean;
+}
+
+export class TasksInfo {
+  activeCount: number;
+  poolSize: number;
+  keepAliveSeconds: number;
+  tasks: Task[];
+}
 
 @Component({
   selector: 'app-root',
@@ -23,6 +37,7 @@ export class AppComponent {
   options: TransferOptions = new TransferOptions();
   sourceDb: string;
   targetDb: string;
+  tasksInfo: TasksInfo;
 
   newMapping = new ColumnMapping();
 
@@ -36,17 +51,31 @@ export class AppComponent {
   }
 
   execute(options: TransferOptions) {
-    this.http.post('/rest/execute', options).subscribe(response => {
-
+    this.http.post('/rest/execute', options).subscribe((response: any) => {
+      this.snackBar.open(response.message, 'close');
     }, err => {
       console.error(err);
     });
   }
 
-  constructor (private http: HttpClient) {
+  updateTasksInfo() {
+    this.http.get('/rest/tasks').subscribe((response: TasksInfo) => {
+      this.tasksInfo = response;
+    });
+  }
+
+  clearDoneTasks() {
+    this.http.get('/rest/tasks/clear').subscribe((response: any) => {
+      this.snackBar.open(response.message, 'close');
+      this.updateTasksInfo();
+    });
+  }
+
+  constructor (private http: HttpClient, private snackBar: MatSnackBar) {
     this.http.get('/rest/info').subscribe((response: any) => {
       this.sourceDb = response.sourceDb;
       this.targetDb = response.targetDb;
     });
+    this.updateTasksInfo();
   }
 }
