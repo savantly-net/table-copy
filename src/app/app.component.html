@@ -1,20 +1,69 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to {{title}}!
-  </h1>
-  <img width="300" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-</div>
-<h2>Here are some links to help you start: </h2>
-<ul>
-  <li>
-    <h2><a target="_blank" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" href="https://github.com/angular/angular-cli/wiki">CLI Documentation</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" href="https://blog.angular.io/">Angular blog</a></h2>
-  </li>
-</ul>
+<div fxLayout="column" fxLayoutGap="1em">
+	<mat-toolbar> <span>Table Copy</span> </mat-toolbar>
+	<h3>Source DB: {{sourceDb}}</h3>
 
+	<h3>Target DB: {{targetDb}}</h3>
+	<br />
+	<div fxLayout fxLayout.lt-sm="column" fxLayoutWrap="true"
+		fxLayoutGap="1em">
+		<mat-card> 
+			<mat-card-header>
+				<mat-card-title>Transfer Configuration</mat-card-title>
+				<mat-card-subtitle>Configure the data to select and insert; map the column types [match the order of your SQL!!]</mat-card-subtitle>
+			</mat-card-header>
+			<mat-card-content>
+				<div fxLayout="column" class="field-container">
+					<mat-form-field>
+						<label>Select Statement</label>
+						<textarea matInput rows="3"	[(ngModel)]="options.selectStatement"></textarea>
+					</mat-form-field>
+					
+					<mat-form-field>
+						<label>Insert Statement</label>
+						<textarea matInput rows="3"	[(ngModel)]="options.insertStatement"></textarea>
+					</mat-form-field>
+				</div>
+				
+				<mat-divider>Column Mappings</mat-divider>
+
+				<div fxLayout="column">
+					<div fxLayout="row">
+						<mat-form-field>
+							<input matInput type="text" [(ngModel)]="newMapping.sourceColumnName"
+								placeholder="source column name"> 
+						</mat-form-field>
+						<mat-form-field>
+							<input type="text" matInput
+								[(ngModel)]="newMapping.targetColumnName"
+								placeholder="target column name">
+						</mat-form-field>
+						
+						<mat-form-field>
+							<mat-select [(ngModel)]="newMapping.sourceColumnType" placeholder="Column data type">
+								<mat-option value="STRING">STRING</mat-option>
+								<mat-option value="INT">INT</mat-option>
+								<mat-option value="LONG">LONG</mat-option>
+								<mat-option value="BLOB">BLOB</mat-option>
+								<mat-option value="CLOB">CLOB</mat-option>
+							</mat-select>
+						</mat-form-field>
+						<button mat-raised-button (click)="addNewMapping(newMapping)">Add</button>
+					</div>
+					<ul>
+						<li *ngFor="let item of options.mappings">source name:
+							{{item.sourceColumnName}}; target name: {{item.targetColumnName}};
+							data type: {{item.sourceColumnType}}
+							<button (click)="removeMapping(item)">Remove</button>
+						</li>
+					</ul>
+				</div>
+			</mat-card-content>
+			<mat-card-actions>
+				<button mat-raised-button color="primary" (click)="execute(options)">
+					<mat-icon matListIcon>check</mat-icon>
+				</button>
+			</mat-card-actions>
+		</mat-card>
+	</div>
+
+</div>
