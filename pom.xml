@@ -95,6 +95,10 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
 					<source>1.8</source>
@@ -175,15 +179,15 @@
 							<goal>copy-resources</goal>
 						</goals>
 						<configuration>
-							<outputDirectory>${basedir}/target/classes/META-INF</outputDirectory>
+							<outputDirectory>${basedir}/target/classes/</outputDirectory>
 							<resources>
 								<resource>
 									<directory>${basedir}/dist</directory>
-									<targetPath>./resources/static/</targetPath>
+									<targetPath>./static/</targetPath>
 								</resource>
 								<resource>
 									<directory>${basedir}/src/public</directory>
-									<targetPath>./resources/static/</targetPath>
+									<targetPath>./static/</targetPath>
 								</resource>
 								<resource>
 									<directory>${basedir}/dist</directory>
