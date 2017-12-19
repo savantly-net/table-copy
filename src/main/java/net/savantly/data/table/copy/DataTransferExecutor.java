@@ -1,55 +1,53 @@
 package net.savantly.data.table.copy;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 public class DataTransferExecutor {
 	
 	private final static Logger log = LoggerFactory.getLogger(DataTransferExecutor.class);
-	private final Method insertMethod;
 	
 	@Autowired
 	@Qualifier("sourceJdbc")
-	private JdbcTemplate sourceJdbc;
+	private NamedParameterJdbcTemplate sourceJdbc;
 	
 	@Autowired
 	@Qualifier("targetJdbc")
-	private JdbcTemplate targetJdbc;
-	
-	public DataTransferExecutor() throws NoSuchMethodException, SecurityException {
-		insertMethod = JdbcTemplate.class.getMethod("update", new Class[]{String.class, Object[].class});
-	}
-	
-	public void execute(String selectStatement, String insertStatement, ColumnMapping[] mappings) {
-        sourceJdbc.query(selectStatement, new Object[0], (rs, rowNum) -> {
-        	Object[] rsValues = new Object[mappings.length];
+	private NamedParameterJdbcTemplate targetJdbc;
+
+	@Async
+	public CompletableFuture<List<Integer>> execute(String selectStatement, String insertStatement, ColumnMapping[] mappings) {
+		Map<String, ?> sourceParameters = new HashMap<>();
+        List<Integer> results = sourceJdbc.query(selectStatement, sourceParameters, (rs, rowNum) -> {
+        	Map<String, Object> parameters = new HashMap<String, Object>(mappings.length);
         	for (int i = 0; i < mappings.length; i++) {
-				rsValues[i] = extractValue(rs, mappings[i]);
+        		parameters.put(mappings[i].getTargetVariableName(), extractValue(rs, mappings[i]));
 			}
-        	return new DynamicRecord(rsValues);
-        }).stream().forEach(record -> {
+        	return parameters;
+        }).stream().map(record -> {
         	log.debug("inserting record into target DB: {}", record);
         	try {
-        		Object[] args = new Object[record.size()];
-        		for (int i = 0; i<record.size(); i++) {
-					args[i] = record.get(i);
-				}
-        		log.debug("invoking insertion method via reflection: {} \t{}",  insertStatement, args);
-				insertMethod.invoke(targetJdbc, insertStatement, args);
-			} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
+				return targetJdbc.update(insertStatement, record);
+			} catch (IllegalArgumentException e) {
 				log.error("Failed to insert record in target DB: {}", record, e);
+				return 0;
 			}
-        });
+        }).collect(Collectors.toList());
+        return CompletableFuture.completedFuture(results);
 	}
 	
 	

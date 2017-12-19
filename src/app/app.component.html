@@ -1,15 +1,37 @@
-<div fxLayout="column" fxLayoutGap="1em">
-	<mat-toolbar> <span>Table Copy</span> </mat-toolbar>
-	<h3>Source DB: {{sourceDb}}</h3>
-
-	<h3>Target DB: {{targetDb}}</h3>
-	<br />
+<div fxLayout="column" fxLayoutAlign="center stretch" fxLayoutGap="1em">
+	<mat-toolbar color="primary"> <span>Table Copy</span> </mat-toolbar>
+	<b>Source DB: {{sourceDb}}</b>
+	<b>Target DB: {{targetDb}}</b>
+	<div *ngIf="tasksInfo">
+		<div fxLayout="row" fxLayoutGap="1em">
+		<button mat-raised-button color="primary" (click)="updateTasksInfo()">
+			<span>Refresh Tasks</span>
+			<mat-icon matListIcon>refresh</mat-icon>
+		</button>
+		<button mat-raised-button color="primary" (click)="clearDoneTasks()">
+			<span>Clear Done Tasks</span>
+			<mat-icon matListIcon>clear</mat-icon>
+		</button>
+		</div>
+		<ul>
+			<li>Pool size: {{tasksInfo.poolSize}}
+			<li>Active Count: {{tasksInfo.activeCount}}
+			<li>KeepAlive Seconds: {{tasksInfo.keepAliveSeconds}}
+			<li *ngFor="let task of tasksInfo.tasks">
+				<ul>
+					<li>ID: {{task.id}}
+					<li>Done: {{task.done}}
+					<li>Cancelled: {{task.cancelled}}
+				</ul>
+			</li>
+		</ul>
+	</div>
 	<div fxLayout fxLayout.lt-sm="column" fxLayoutWrap="true"
 		fxLayoutGap="1em">
 		<mat-card> 
 			<mat-card-header>
 				<mat-card-title>Transfer Configuration</mat-card-title>
-				<mat-card-subtitle>Configure the data to select and insert; map the column types [match the order of your SQL!!]</mat-card-subtitle>
+				<mat-card-subtitle>Configure the data to select and insert; map the column types [match the source column name to the variable used in the 'INSERT' statement!!]</mat-card-subtitle>
 			</mat-card-header>
 			<mat-card-content>
 				<div fxLayout="column" class="field-container">
@@ -27,15 +49,15 @@
 				<mat-divider>Column Mappings</mat-divider>
 
 				<div fxLayout="column">
-					<div fxLayout="row">
+					<div fxLayout="row" fxLayoutGap="1em">
 						<mat-form-field>
 							<input matInput type="text" [(ngModel)]="newMapping.sourceColumnName"
 								placeholder="source column name"> 
 						</mat-form-field>
 						<mat-form-field>
 							<input type="text" matInput
-								[(ngModel)]="newMapping.targetColumnName"
-								placeholder="target column name">
+								[(ngModel)]="newMapping.targetVariableName"
+								placeholder="target variable name">
 						</mat-form-field>
 						
 						<mat-form-field>
@@ -51,7 +73,7 @@
 					</div>
 					<ul>
 						<li *ngFor="let item of options.mappings">source name:
-							{{item.sourceColumnName}}; target name: {{item.targetColumnName}};
+							{{item.sourceColumnName}} | target name: {{item.targetVariableName}} | 
 							data type: {{item.sourceColumnType}}
 							<button (click)="removeMapping(item)">Remove</button>
 						</li>

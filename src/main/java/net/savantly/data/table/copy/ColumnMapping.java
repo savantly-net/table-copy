@@ -1,10 +1,14 @@
 package net.savantly.data.table.copy;
 
+import java.sql.Types;
+
 public class ColumnMapping {
 
 	private String sourceColumnName;
-	private String targetColumnName;
+	private String targetVariableName;
 	private ColumnType sourceColumnType;
+	
+	public ColumnMapping() {}
 
 	/**
 	 * Uses the provided source column name as the target column name
@@ -24,10 +28,28 @@ public class ColumnMapping {
 		this(sourceColumnName, sourceColumnType, sourceColumnName);
 	}
 
-	public ColumnMapping(String sourceColumnName, ColumnType sourceColumnType, String targetColumnName) {
+	public ColumnMapping(String sourceColumnName, ColumnType sourceColumnType, String targetVariableName) {
 		this.sourceColumnName = sourceColumnName;
-		this.targetColumnName = targetColumnName;
+		this.targetVariableName = targetVariableName;
 		this.sourceColumnType = sourceColumnType;
+	}
+	
+	public int getSqlType () {
+		switch (this.sourceColumnType) {
+		case BLOB:
+			return Types.BLOB;
+		case CLOB:
+			return Types.CLOB;
+		case INT:
+			return Types.INTEGER;
+		case LONG:
+			return Types.BIGINT;
+		case STRING:
+			return Types.VARCHAR;
+		default:
+			return Types.VARCHAR;
+		
+		}
 	}
 
 	public String getSourceColumnName() {
@@ -36,11 +58,11 @@ public class ColumnMapping {
 	public void setSourceColumnName(String sourceColumnName) {
 		this.sourceColumnName = sourceColumnName;
 	}
-	public String getTargetColumnName() {
-		return targetColumnName;
+	public String getTargetVariableName() {
+		return targetVariableName;
 	}
-	public void setTargetColumnName(String targetColumnName) {
-		this.targetColumnName = targetColumnName;
+	public void setTargetVariableName(String targetVariableName) {
+		this.targetVariableName = targetVariableName;
 	}
 	public ColumnType getSourceColumnType() {
 		return sourceColumnType;
