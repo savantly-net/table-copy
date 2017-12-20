@@ -16,7 +16,7 @@ See the [application.properties](./src/main/resources/application.properties) fo
 ![example](./src/test/resources/img/example.png)  
 
 ## Development server
-Run `mvn clean` or `npm install` to install the client side dependencies.  
+Run `mvn clean install` or `npm install` to install the client side dependencies.  
 Run `mvn spring-boot:run` to start the java rest services on port 8080   
 Run `npm run start-proxy` for a client side dev server that will proxy the rest calls to the java app on port 8080. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 

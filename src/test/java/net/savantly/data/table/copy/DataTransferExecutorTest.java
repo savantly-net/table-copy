@@ -47,8 +47,9 @@ public class DataTransferExecutorTest {
 		
         log.info("Querying for customer records where first_name = 'Josh':");
         CompletableFuture<List<Integer>> future = executor.execute(selectStatement, insertStatement, mappings);
-        List<Integer> results = future.get(10, TimeUnit.SECONDS);
-        Assert.assertTrue("All ints should be 1", results.stream().allMatch(i -> i.intValue() == 1));
+        List<Integer> results = future.get(90, TimeUnit.SECONDS);
+
+        Assert.assertTrue("Two records shouldhave been inserted", results.stream().allMatch(i -> i.intValue() == 2));
 	}
 
 	@Configuration
