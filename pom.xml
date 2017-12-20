@@ -73,6 +73,13 @@
 			<artifactId>spring-boot-starter-jdbc</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
+		</dependency>
+
+
 		<!-- Test -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -87,8 +94,8 @@
 		</dependency>
 		<dependency>
 			<groupId>com.oracle</groupId>
-			<artifactId>ojdbc7</artifactId>
-			<version>12.1.0.2.0</version>
+			<artifactId>ojdbc8</artifactId>
+			<version>12.2.0.1</version>
 		</dependency>
 
 	</dependencies>
@@ -181,6 +188,11 @@
 						<configuration>
 							<outputDirectory>${basedir}/target/classes/</outputDirectory>
 							<resources>
+								<resource>
+									<!-- Exclude custom profile properties from the package -->
+									<directory>${basedir}/src/main/resources</directory>
+									<exclude>application-*.properties</exclude>
+								</resource>
 								<resource>
 									<directory>${basedir}/dist</directory>
 									<targetPath>./static/</targetPath>

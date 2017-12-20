@@ -29,13 +29,20 @@ public class RestApi {
 	@Value("${target.datasource.url}")
 	private String target;
 	private List<CompletableFuture> futures = Collections.synchronizedList(new ArrayList<>());
+	private Map<Integer, String> exceptions = Collections.synchronizedMap(new HashMap<Integer, String>());
 	
 	
 	@RequestMapping("/execute")
 	public Map<String, String> executeTransfer(@RequestBody TransferOptions options) {
-		futures.add(transferExecutor.execute(options.getSelectStatement(), options.getInsertStatement(), options.getMappings()));
+		CompletableFuture<List<Integer>> future = transferExecutor.execute(options.getSelectStatement(), options.getInsertStatement(), options.getMappings());
+		future.exceptionally((e) -> {
+			exceptions.put(future.hashCode(), e.getLocalizedMessage());
+			return Collections.emptyList();
+		});
+		futures.add(future);
 		HashMap<String, String> response = new HashMap<String, String>();
 		response.put("message", "Added task to queue");
+		response.put("id", String.format("%s", future.hashCode()));
 		return response;
 	}
 	
@@ -59,6 +66,8 @@ public class RestApi {
 			threadInfo.put("id", f.hashCode());
 			threadInfo.put("done", f.isDone());
 			threadInfo.put("cancelled", f.isCancelled());
+			threadInfo.put("completedExceptionally", f.isCompletedExceptionally());
+			threadInfo.put("message", exceptions.get(f.hashCode()));
 			return threadInfo;
 		}).collect(Collectors.toList());
 		
@@ -73,6 +82,9 @@ public class RestApi {
 		
 		List<CompletableFuture> done = this.futures.stream().filter(f -> f.isDone()).collect(Collectors.toList());
 		this.futures.removeAll(done);
+		done.forEach(f -> {
+			this.exceptions.remove(f.hashCode());
+		});
 		
 		return response;
 	}

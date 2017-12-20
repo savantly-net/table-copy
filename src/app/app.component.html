@@ -1,3 +1,4 @@
+
 <div fxLayout="column" fxLayoutAlign="center stretch" fxLayoutGap="1em">
 	<mat-toolbar color="primary"> <span>Table Copy</span> </mat-toolbar>
 	<b>Source DB: {{sourceDb}}</b>
@@ -22,6 +23,8 @@
 					<li>ID: {{task.id}}
 					<li>Done: {{task.done}}
 					<li>Cancelled: {{task.cancelled}}
+					<li>Exception: {{task.completedExceptionally}}
+					<li>Message: {{task.message}}
 				</ul>
 			</li>
 		</ul>

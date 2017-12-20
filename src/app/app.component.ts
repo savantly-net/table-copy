@@ -18,6 +18,8 @@ export class Task {
   id: number;
   done: boolean;
   cancelled: boolean;
+  completedExceptionally: boolean;
+  message: string;
 }
 
 export class TasksInfo {
@@ -53,8 +55,10 @@ export class AppComponent {
   execute(options: TransferOptions) {
     this.http.post('/rest/execute', options).subscribe((response: any) => {
       this.snackBar.open(response.message, 'close');
+      this.updateTasksInfo();
     }, err => {
       console.error(err);
+      this.snackBar.open(err.message, 'close');
     });
   }
 
