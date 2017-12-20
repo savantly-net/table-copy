@@ -74,7 +74,6 @@ export class AppComponent {
       this.updateTasksInfo();
     });
   }
-
   constructor (private http: HttpClient, private snackBar: MatSnackBar) {
     this.http.get('/rest/info').subscribe((response: any) => {
       this.sourceDb = response.sourceDb;

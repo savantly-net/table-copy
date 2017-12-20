@@ -27,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class DataTransferExecutor {
 	
 	private final static Logger log = LoggerFactory.getLogger(DataTransferExecutor.class);
-	
 	private int batchSize = 10;
 	
 	@Autowired
