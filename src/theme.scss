@@ -10,7 +10,7 @@
 // (imported above). For each palette, you can optionally specify a default, lighter, and darker
 // hue.
 $sprout-app-primary: mat-palette($mat-blue);
-$sprout-app-accent:  mat-palette($mat-grey);
+$sprout-app-accent:  mat-palette($mat-amber);
 
 // The warn palette is optional (defaults to red).
 $sprout-app-warn:    mat-palette($mat-red);

@@ -14,28 +14,26 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Service
 public class DataTransferExecutor {
 	
 	private final static Logger log = LoggerFactory.getLogger(DataTransferExecutor.class);
 	private int batchSize = 10;
 	
-	@Autowired
-	@Qualifier("sourceJdbc")
 	private NamedParameterJdbcTemplate sourceJdbc;
-	
-	@Autowired
-	@Qualifier("targetJdbc")
 	private NamedParameterJdbcTemplate targetJdbc;
+	
+	public DataTransferExecutor(int batchSize, NamedParameterJdbcTemplate sourceJdbc,
+			NamedParameterJdbcTemplate targetJdbc) {
+		this.batchSize = batchSize;
+		this.sourceJdbc = sourceJdbc;
+		this.targetJdbc = targetJdbc;
+	}
 
 	@Async
 	public CompletableFuture<List<Integer>> execute(String selectStatement, String insertStatement, ColumnMapping[] mappings) {

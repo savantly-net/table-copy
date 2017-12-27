@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  MatExpansionModule,
   MatSidenavModule,
   MatButtonModule,
   MatIconModule,
@@ -21,6 +22,7 @@ import { FlexLayoutModule } from '@angular/flex-layout';
   declarations: [],
   exports: [
     CommonModule,
+    MatExpansionModule,
     MatSidenavModule,
     MatButtonModule,
     MatIconModule,

@@ -1,41 +1,92 @@
 <div fxLayout="column" fxLayoutAlign="center stretch" fxLayoutGap="1em">
-	<mat-toolbar color="primary"> <span>Table Copy</span> </mat-toolbar>
-	<b>Source DB: {{sourceDb}}</b>
-	<b>Target DB: {{targetDb}}</b>
-	<div *ngIf="tasksInfo">
-		<div fxLayout="row" fxLayoutGap="1em">
-		<button mat-raised-button color="primary" (click)="updateTasksInfo()">
-			<span>Refresh Tasks</span>
-			<mat-icon matListIcon>refresh</mat-icon>
-		</button>
-		<button mat-raised-button color="primary" (click)="clearDoneTasks()">
-			<span>Clear Done Tasks</span>
-			<mat-icon matListIcon>clear</mat-icon>
-		</button>
-		</div>
-		<ul>
-			<li>Pool size: {{tasksInfo.poolSize}}
-			<li>Active Count: {{tasksInfo.activeCount}}
-			<li>KeepAlive Seconds: {{tasksInfo.keepAliveSeconds}}
-			<li *ngFor="let task of tasksInfo.tasks">
+	<mat-toolbar color="primary">
+		<span>Table Copy</span>
+	</mat-toolbar>
+	<mat-accordion>
+		<mat-expansion-panel expanded="true">
+			<mat-expansion-panel-header>Datasource Configuration</mat-expansion-panel-header>
+			<div fxLayout="column" class="content">
+				<fieldset fxLayout="column" class="field-container">
+					<legend>Source</legend>
+					<mat-form-field>
+						<input matInput type="text" [(ngModel)]="sourceDb.url"
+								placeholder="URL ex. jdbc:hsqldb:mem:testSource"> 
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput type="text" [(ngModel)]="sourceDb.username"
+								placeholder="username"> 
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput type="password" [(ngModel)]="sourceDb.password"
+								placeholder="password"> 
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput type="text" [(ngModel)]="sourceDb.driverClassName"
+								placeholder="Driver Class Name ex. org.hsqldb.jdbc.JDBCDriver"> 
+					</mat-form-field>
+					<button mat-raised-button (click)="testDataSource(sourceDb)">Test</button>
+				</fieldset>
+				
+				<fieldset fxLayout="column" class="field-container">
+					<legend>Target</legend>
+					<mat-form-field>
+						<input matInput type="text" [(ngModel)]="targetDb.url"
+								placeholder="URL ex. jdbc:hsqldb:mem:testSource"> 
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput type="text" [(ngModel)]="targetDb.username"
+								placeholder="username"> 
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput type="password" [(ngModel)]="targetDb.password"
+								placeholder="password"> 
+					</mat-form-field>
+					<mat-form-field>
+						<input matInput type="text" [(ngModel)]="targetDb.driverClassName"
+								placeholder="Driver Class Name ex. org.hsqldb.jdbc.JDBCDriver"> 
+					</mat-form-field>
+					<button mat-raised-button (click)="testDataSource(targetDb)">Test</button>
+				</fieldset>
+			</div>
+			<mat-action-row fxLayoutGap="1em">
+				<button mat-raised-button color="primary" (click)="applyDataSourceConfiguration()">Apply</button>
+			</mat-action-row>
+		</mat-expansion-panel>
+			<mat-expansion-panel *ngIf="tasksInfo">
+			<mat-expansion-panel-header>Tasks</mat-expansion-panel-header>
+			<div>
 				<ul>
-					<li>ID: {{task.id}}
-					<li>Done: {{task.done}}
-					<li>Cancelled: {{task.cancelled}}
-					<li>Exception: {{task.completedExceptionally}}
-					<li>Message: {{task.message}}
+					<li>Pool size: {{tasksInfo.poolSize}}
+					<li>Active Count: {{tasksInfo.activeCount}}
+					<li>KeepAlive Seconds: {{tasksInfo.keepAliveSeconds}}
+					<li *ngFor="let task of tasksInfo.tasks">
+						<ul>
+							<li>ID: {{task.id}}
+							<li>Done: {{task.done}}
+							<li>Cancelled: {{task.cancelled}}
+							<li>Exception: {{task.completedExceptionally}}
+							<li>Message: {{task.message}}
+						</ul>
+					</li>
 				</ul>
-			</li>
-		</ul>
-	</div>
-	<div fxLayout fxLayout.lt-sm="column" fxLayoutWrap="true"
-		fxLayoutGap="1em">
-		<mat-card> 
-			<mat-card-header>
-				<mat-card-title>Transfer Configuration</mat-card-title>
-				<mat-card-subtitle>Configure the data to select and insert; map the column types [match the source column name to the variable used in the 'INSERT' statement!!]</mat-card-subtitle>
-			</mat-card-header>
-			<mat-card-content>
+			</div>
+			<mat-action-row fxLayoutGap="1em">
+				<button mat-raised-button color="primary" (click)="clearDoneTasks()">
+					<span>Clear Done Tasks</span>
+					<mat-icon matListIcon>clear</mat-icon>
+				</button>
+				<button mat-raised-button color="primary" (click)="updateTasksInfo()">
+					<span>Refresh Tasks</span>
+					<mat-icon matListIcon>refresh</mat-icon>
+				</button>
+			</mat-action-row>
+		</mat-expansion-panel>
+		<mat-expansion-panel>
+			<mat-expansion-panel-header>
+				<mat-panel-title>Task Configuration</mat-panel-title>
+				<mat-panel-description>Configure the data to select and insert; map the column types [match the source column name to the variable used in the 'INSERT' statement!!]</mat-panel-description>
+			</mat-expansion-panel-header>
+			<div>
 				<div fxLayout="column" class="field-container">
 					<mat-form-field>
 						<label>Select Statement</label>
@@ -81,13 +132,13 @@
 						</li>
 					</ul>
 				</div>
-			</mat-card-content>
-			<mat-card-actions>
+			</div>
+			<mat-action-row fxLayoutGap="1em">
 				<button mat-raised-button color="primary" (click)="execute(options)">
 					<mat-icon matListIcon>check</mat-icon>
 				</button>
-			</mat-card-actions>
-		</mat-card>
-	</div>
+			</mat-action-row>
+		</mat-expansion-panel>
+	</mat-accordion>
 
 </div>

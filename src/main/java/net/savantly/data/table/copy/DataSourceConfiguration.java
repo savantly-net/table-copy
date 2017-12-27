@@ -2,45 +2,71 @@ package net.savantly.data.table.copy;
 
 import javax.sql.DataSource;
 
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.web.context.annotation.SessionScope;
 
+@SessionScope
 @Configuration
-public class DataSourceConfiguration {
+public class DataSourceConfiguration implements InitializingBean {
+	
+	public final static String SOURCE_DATASOURCE_BEAN_NAME = "sourceDataSource";
+	public final static String TARGET_DATASOURCE_BEAN_NAME = "targetDataSource";
+	public final static String SOURCE_JDBC_TEMPLATE_BEAN_NAME = "sourceJdbc";
+	public final static String TARGET_JDBC_TEMPLATE_BEAN_NAME = "targetJdbc";
 
+	@Autowired
+	private  ApplicationContext context;
+	
+	private DataTransferExecutor executor;
+	
 	@ConfigurationProperties(prefix = "source.datasource")
-	class SourceDataSourceProperties extends DataSourceProperties {
+	public class SourceDataSourceProperties extends DataSourceProperties {
 		
 		@Primary
-		@Bean("sourceDataSource")
+		@Bean(SOURCE_DATASOURCE_BEAN_NAME)
 		public DataSource sourceDataSource() {
 			return this.initializeDataSourceBuilder().build();
 		}
 		
-		@Bean("sourceJdbc")
-		public NamedParameterJdbcTemplate sourceJdbc(@Qualifier("sourceDataSource") DataSource dataSource) {
+		@Bean(SOURCE_JDBC_TEMPLATE_BEAN_NAME)
+		public NamedParameterJdbcTemplate sourceJdbc(@Qualifier(SOURCE_DATASOURCE_BEAN_NAME) DataSource dataSource) {
 			return new NamedParameterJdbcTemplate(dataSource);
 		}
 	}
 	
 	@ConfigurationProperties(prefix = "target.datasource")
-	class TargetDataSourceProperties extends DataSourceProperties {
+	public class TargetDataSourceProperties extends DataSourceProperties {
 		
 		@Primary
-		@Bean("targetDataSource")
+		@Bean(TARGET_DATASOURCE_BEAN_NAME)
 		public DataSource sourceDataSource() {
 			return this.initializeDataSourceBuilder().build();
 		}
 		
-		@Bean("targetJdbc")
-		public NamedParameterJdbcTemplate sourceJdbc(@Qualifier("targetDataSource") DataSource dataSource) {
+		@Bean(TARGET_JDBC_TEMPLATE_BEAN_NAME)
+		public NamedParameterJdbcTemplate sourceJdbc(@Qualifier(TARGET_DATASOURCE_BEAN_NAME) DataSource dataSource) {
 			return new NamedParameterJdbcTemplate(dataSource);
 		}
 	}
+
+	public DataTransferExecutor getExecutor() {
+		return executor;
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		NamedParameterJdbcTemplate sourceJdbc = (NamedParameterJdbcTemplate) context.getBean(SOURCE_JDBC_TEMPLATE_BEAN_NAME);
+		NamedParameterJdbcTemplate targetJdbc = (NamedParameterJdbcTemplate) context.getBean(TARGET_JDBC_TEMPLATE_BEAN_NAME);
+		this.executor = new DataTransferExecutor(10, sourceJdbc, targetJdbc);
+	}
+
 }

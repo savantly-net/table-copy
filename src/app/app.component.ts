@@ -2,6 +2,13 @@ import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material';
 
+export class DataSource {
+  url: string;
+  username: string;
+  password: string;
+  driverClassName: string;
+}
+
 export class ColumnMapping {
   sourceColumnName: string;
   targetVariableName: string;
@@ -37,8 +44,10 @@ export class TasksInfo {
 export class AppComponent {
   title = 'app';
   options: TransferOptions = new TransferOptions();
-  sourceDb: string;
-  targetDb: string;
+  sourceDb: DataSource = new DataSource();
+  targetDb: DataSource = new DataSource();
+  sourceUrl: string;
+  targetUrl: string;
   tasksInfo: TasksInfo;
 
   newMapping = new ColumnMapping();
@@ -58,7 +67,7 @@ export class AppComponent {
       this.updateTasksInfo();
     }, err => {
       console.error(err);
-      this.snackBar.open(err.message, 'close');
+      this.snackBar.open(err.error.message, 'close');
     });
   }
 
@@ -74,10 +83,49 @@ export class AppComponent {
       this.updateTasksInfo();
     });
   }
+
+  testDataSource(dataSource: DataSource) {
+    this.http.post('/rest/db/test', dataSource).subscribe((response: any) => {
+      this.snackBar.open(response.message, 'close');
+    }, err => {
+      console.error(err);
+      this.snackBar.open(err.error.message, 'close');
+    });
+  }
+
+  flattenDataSourceConfiguration() {
+    const settings = {};
+
+    settings['source.datasource.url'] = this.sourceDb.url;
+    settings['source.datasource.username'] = this.sourceDb.username;
+    settings['source.datasource.password'] = this.sourceDb.password;
+    settings['source.datasource.driverClassName'] = this.sourceDb.driverClassName;
+
+    settings['target.datasource.url'] = this.targetDb.url;
+    settings['target.datasource.username'] = this.targetDb.username;
+    settings['target.datasource.password'] = this.targetDb.password;
+    settings['target.datasource.driverClassName'] = this.targetDb.driverClassName;
+
+    return settings;
+  }
+
+  applyDataSourceConfiguration() {
+    const settings = this.flattenDataSourceConfiguration();
+    this.http.post('/rest/db/', settings).subscribe((response: any) => {
+      this.snackBar.open(response.message, 'close');
+    }, err => {
+      console.error(err);
+      this.snackBar.open(err.error.message, 'close');
+    });
+  }
+
   constructor (private http: HttpClient, private snackBar: MatSnackBar) {
     this.http.get('/rest/info').subscribe((response: any) => {
-      this.sourceDb = response.sourceDb;
-      this.targetDb = response.targetDb;
+      this.sourceUrl = response.sourceDb;
+      this.targetUrl = response.targetDb;
+    }, err => {
+      console.error(err);
+      this.snackBar.open(err.error.message, 'close');
     });
     this.updateTasksInfo();
   }

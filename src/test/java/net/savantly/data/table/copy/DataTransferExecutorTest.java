@@ -7,17 +7,21 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment=WebEnvironment.MOCK)
+@TestPropertySource("classpath:/application-test.properties")
 @RunWith(SpringRunner.class)
 public class DataTransferExecutorTest {
 	
@@ -29,7 +33,11 @@ public class DataTransferExecutorTest {
 	SourceFixture sourceFixture;
 	@Autowired
 	TargetFixture targetFixture;
-	
+
+	@Before
+	public void before() {
+		//restTemplate.postForObject("/rest/db", new HashMap<String,  String>(), Map.class);
+	}
 	
 	@Test
 	public void test() throws NoSuchMethodException, SecurityException, InterruptedException, ExecutionException, TimeoutException {
@@ -53,7 +61,10 @@ public class DataTransferExecutorTest {
 	}
 
 	@Configuration
-	@ComponentScan
-	static class TestContext { }
+	@Import(TestConfiguration.class)
+	static class TestContext  {
+
+
+	}
 
 }
